@@ -947,35 +947,6 @@ class PointsRangeFilter(BaseTransform):
         if pts_semantic_mask is not None:
             input_dict['pts_semantic_mask'] = pts_semantic_mask[points_mask]
 
-        # input is x,y,z,r
-
-        # randomly select
-        # 75%, 50%, 25%
-        #points_num = len(input_dict['points'])
-        #mask = self.generate_random_bool(points_num, percentage_false=75)
-        #input_dict['points'] = input_dict['points'][mask]
-
-        #by 4th column
-        # 0.2, 0.1, 0.05, 0.01
-        #r = input_dict['points'][:,-1].tensor
-        #mask = self.generate_mask_on_r(r, threshold=0.2)
-        #input_dict['points'] = input_dict['points'][mask]
-
-        # perturb 
-        xyz = input_dict['points'][:,:3].tensor
-        r = input_dict['points'][:,-1].tensor
-        
-        # perturb xyz
-        #xyz = self.perturb_xyz(xyz, miu=10, sigma=10)
-        #input_dict['points'] = torch.cat((xyz,r),1)
-
-
-        # perturb r
-
-        #print("##########")
-        #input_dict['points'] = input_dict['points'].tensor
-        #print(input_dict)
-        #assert(1==2)
         return input_dict
 
     def __repr__(self) -> str:
@@ -983,24 +954,6 @@ class PointsRangeFilter(BaseTransform):
         repr_str = self.__class__.__name__
         repr_str += f'(point_cloud_range={self.pcd_range.tolist()})'
         return repr_str
-
-    def generate_random_bool(self, points_num, percentage_false=10):
-        # this is to generate randomly select mask
-        num_false = int(points_num * (percentage_false / 100))
-        mask = np.array([False] * num_false + [True] * (points_num - num_false))
-        np.random.shuffle(mask )
-        return mask 
-    
-    def generate_mask_on_r(self, r, threshold):
-        return np.squeeze((r >= threshold).numpy())
-    
-    def perturb_xyz(self, xyz, miu=2, sigma=1):
-        # the unit of data is meter, we use mm for perturb
-        xyz = xyz + (torch.randn_like(xyz)*sigma + miu)/1000
-        return xyz
-    
-    def perturb_r (self, r, percentage = 5):
-        return r
 
 
 @TRANSFORMS.register_module()
